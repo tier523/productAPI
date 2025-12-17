@@ -1,39 +1,57 @@
-import io.cucumber.java.en.And;
+import io.cucumber.java.Before;
+import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.junit.jupiter.api.AfterAll;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 public class StepDefinition {
 
-    WebDriver driver;
+    private WebDriver driver;
+
+    @Before  // Körs innan varje scenario
+    public void setUp() {
+        // Tvinga rensa cachen varje gång och logga mer detaljerat
+        WebDriverManager.chromedriver().clearDriverCache().clearResolutionCache().setup();  // Laddar ner och sätter upp chromedriver automatiskt
+
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--remote-allow-origins=*");
+
+        driver = new ChromeDriver(options);
+    }
 
     @Given("The Shop is available")
     public void the_shop_is_available() {
-        System.setProperty("webdriver.chrome.driver", "G:\\_AutoTestKurs\\Laboration2\\Selenium\\chromedriver-win64\\chromedriver.exe");
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--remote-allow-origins=*");
-        driver = new ChromeDriver(options);
-    }
-    @When("User visits The Shop")
-    public void user_visits_the_shop() {
-
         driver.get("https://webshop-agil-testautomatiserare.netlify.app/");
 
-    }
-    @Then("The title should be {string}")
-    public void the_title_should_be(String expectedTitle) {
-        String actualTitle = driver.getTitle();
-        Assertions.assertEquals(expectedTitle, actualTitle);
+        // Vänta max 20 sekunder tills titeln är "The Shop"
+        new WebDriverWait(driver, Duration.ofSeconds(20))
+                .until(ExpectedConditions.titleIs("The Shop"));
     }
 
-    @And("Close the browser")
-    public void closeBrowser(){
-        driver.quit();
+    @When("User visits The Shop")
+    public void user_visits_the_shop() {
+        // Kan vara tom nu, eller lägg en extra navigering om behövs
+    }
+
+    @Then("The title should be {string}")
+    public void the_title_should_be(String expectedTitle) {
+        Assertions.assertEquals(expectedTitle, driver.getTitle());
+    }
+
+    @After  // Körs efter varje scenario
+    public void closeBrowser() {
+        if (driver != null) {
+            driver.quit();
+        }
     }
 
 }
