@@ -3,7 +3,6 @@ import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -17,14 +16,9 @@ public class StepDefinition {
 
     private WebDriver driver;
 
-    @Before  // Körs innan varje scenario
+    @Before
     public void setUp() {
-        // Tvinga rensa cachen varje gång och logga mer detaljerat
-        WebDriverManager.chromedriver().clearDriverCache().clearResolutionCache().setup();  // Laddar ner och sätter upp chromedriver automatiskt
-
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--remote-allow-origins=*");
-
         driver = new ChromeDriver(options);
     }
 
@@ -39,7 +33,7 @@ public class StepDefinition {
 
     @When("User visits The Shop")
     public void user_visits_the_shop() {
-        // Kan vara tom nu, eller lägg en extra navigering om behövs
+        // Eventuell extra navigering kan läggas här
     }
 
     @Then("The title should be {string}")
@@ -47,11 +41,15 @@ public class StepDefinition {
         Assertions.assertEquals(expectedTitle, driver.getTitle());
     }
 
-    @After  // Körs efter varje scenario
+    @After
     public void closeBrowser() {
+        try {
+            Thread.sleep(3000); // 3 sekunder
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
         if (driver != null) {
             driver.quit();
         }
     }
-
 }
