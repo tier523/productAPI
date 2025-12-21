@@ -1,1 +1,11 @@
-﻿/.idea/
+﻿# Maven build folder
+/target/
+
+# IntelliJ
+.idea/
+*.iml
+
+# Eclipse (om du använder det)
+.project
+.classpath
+.settings/
